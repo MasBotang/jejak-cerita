@@ -82,7 +82,7 @@ export async function subscribeUserForPush() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/jejak-cerita/sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then(registration => {
         console.log('Service Worker terdaftar dengan scope:', registration.scope);
         
