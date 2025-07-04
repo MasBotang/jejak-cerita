@@ -3,18 +3,18 @@ const API_CACHE_NAME = 'jejakcerita-api-cache-v1';
 const STORY_API_BASE_URL = 'https://story-api.dicoding.dev';
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/src/styles/style.css',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+  '/jejak-cerita/', 
+  '/jejak-cerita/index.html',
+  '/jejak-cerita/manifest.json',
+  '/jejak-cerita/src/styles/style.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', 
   'https://unpkg.com/leaflet/dist/leaflet.css',
-  '/src/main.js',
-  'https://unpkg.com/leaflet/dist/leaflet.js',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
-  '/src/assets/logo-jejakCerita.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/jejak-cerita/src/main.js',
+  'https://unpkg.com/leaflet/dist/leaflet.js', 
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', 
+  '/jejak-cerita/src/assets/logo-jejakCerita.png',
+  '/jejak-cerita/icons/icon-192x192.png',
+  '/jejak-cerita/icons/icon-512x512.png',
 ];
 
 self.addEventListener('install', (event) => {
