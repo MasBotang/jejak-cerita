@@ -127,8 +127,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Jejak Cerita';
   const options = {
     body: data.body || 'Ada pembaruan cerita terbaru!',
-    icon: data.icon || '/icons/icon-192x192.png',
-    badge: data.badge || '/icons/icon-192x192.png',
+    icon: data.icon || '/jejak-cerita/icons/icon-192x192.png',
+    badge: data.badge || '/jejak-cerita/icons/icon-192x192.png',
     image: data.image || undefined,
     data: data.data || {},
     actions: data.actions || [],
