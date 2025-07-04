@@ -1,3 +1,5 @@
+URL Hasil Deployment: https://masbotang.github.io/jejak-cerita/
+
 Autentikasi:
 - Aplikasi ini menggunakan token JWT setelah login berhasil.
 - Token disimpan di localStorage, dan digunakan pada setiap permintaan API melalui header Authorization.
