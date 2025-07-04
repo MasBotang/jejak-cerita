@@ -1,0 +1,5 @@
+Autentikasi:
+- Aplikasi ini menggunakan token JWT setelah login berhasil.
+- Token disimpan di localStorage, dan digunakan pada setiap permintaan API melalui header Authorization.
+- Jika pengguna belum login (token tidak tersedia), maka halaman akan otomatis diarahkan ke #/login.
+- Halaman login dan register bersifat publik, sedangkan halaman lainnya memerlukan autentikasi.
