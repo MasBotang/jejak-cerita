@@ -9,15 +9,16 @@ class LoginPresenter {
     this._bindEvents(); 
   }
 
-  _checkLoginStatus() {
-    const token = this.model.getToken();
+_checkLoginStatus() {
+  const token = this.model.getToken();
 
-    if (token) {
-      this._redirectHome(); 
-    } else {
-      this._redirectLogin(); 
-    }
+  if (token) {
+    this._redirectHome(); 
+  } else {
+    this._redirectLogin(); 
   }
+}
+
 
   _redirectHome() {
     console.log('LoginPresenter: Pengguna sudah login, mengarahkan ke halaman utama...');
@@ -41,13 +42,18 @@ class LoginPresenter {
   async handleLogin({ email, password }) {
   console.log('LoginPresenter: handleLogin dipanggil dengan email:', email);
   try {
-    const loginResult = await this.model.login(email, password);
-    console.log('LoginPresenter: this.model.login berhasil, hasilnya:', loginResult);
+const loginResult = await this.model.login(email, password);
+console.log('LoginPresenter: token yang diterima:', loginResult.token);
 
-    localStorage.setItem('authToken', loginResult.token);  
+sessionStorage.setItem('authToken', loginResult.token); 
+
+console.log('Token setelah login:', sessionStorage.getItem('authToken'));
+
+
+await subscribeUserForPush(); 
+
 
     this.view.showMessage('Login berhasil! Mengarahkan...', 'success');
-    await subscribeUserForPush();
 
     setTimeout(() => {
       location.hash = '/';
@@ -61,7 +67,7 @@ class LoginPresenter {
 
   async _subscribeUserForPush() {
     try {
-      await subscribeUserForPush();
+
       console.log('LoginPresenter: Pengguna berhasil di-subscribe untuk push notifications.');
     } catch (err) {
       console.error('LoginPresenter: Gagal subscribe pengguna untuk push notifications:', err.message);

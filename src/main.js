@@ -82,7 +82,7 @@ export async function subscribeUserForPush() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/jejak-cerita/sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then(registration => {
         console.log('Service Worker terdaftar dengan scope:', registration.scope);
         
@@ -100,12 +100,18 @@ window.addEventListener('load', () => {
     console.warn('Browser tidak mendukung Service Worker.');
   }
 
+    // Redirect ke login jika belum ada hash
+  if (location.hash === '' || location.hash === '#/') {
+    location.hash = '#/login';
+  }
+
   router();
 });
 
 // Menambahkan event listener untuk login
 window.addEventListener('loginSuccess', () => {
   const authToken = sessionStorage.getItem('authToken');
+  console.log('Token yang ditemukan:', authToken); 
   if (authToken) {
     subscribeUserForPush();
   } else {
@@ -132,3 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// Menghapus duplikasi event listener untuk tombol subscribe/unsubscribe
+// Karena sudah ditangani di homeView.js
+
+async function initPushNotification() {
+  if ('Notification' in window && 'serviceWorker' in navigator) {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Izin notifikasi diberikan');
+      await subscribeUserForPush(); // baru lanjut push subscription
+    } else {
+      console.warn('Izin notifikasi tidak diberikan');
+    }
+  }
+}

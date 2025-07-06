@@ -45,17 +45,14 @@ const router = async () => {
       return; 
     }
 
-    // === PENTING: Panggil cleanup() pada view sebelumnya jika ada ===
     if (currentViewInstance && typeof currentViewInstance.cleanup === 'function') {
       currentViewInstance.cleanup();
     }
-    // =============================================================
-
+    // 
     if (targetView && typeof targetView.render === 'function') {
-      // Set currentViewInstance ke view yang baru akan di-render
       currentViewInstance = targetView; 
       
-      targetView.render(); // Render view baru
+      targetView.render(); 
 
       if (typeof targetView.afterRender === 'function') {
         try {
@@ -66,7 +63,7 @@ const router = async () => {
         }
       }
     } else {
-      currentViewInstance = null; // Reset jika halaman tidak ditemukan
+      currentViewInstance = null; 
       appContainer.innerHTML = `
         <div class="container mt-5">
           <div class="alert alert-warning text-center">Halaman tidak ditemukan</div>

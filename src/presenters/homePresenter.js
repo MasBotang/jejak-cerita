@@ -77,6 +77,10 @@ class HomePresenter {
 
   _bindEvents() {
     this.view.bindSearchInput(this._handleSearchInput.bind(this));
+    // Hapus setTimeout - tombol sudah diinisialisasi di render()
+    // setTimeout(() => {
+    //   this.view.initNotificationButtons();
+    // }, 100);
   }
 
   _handleSearchInput(keyword) {

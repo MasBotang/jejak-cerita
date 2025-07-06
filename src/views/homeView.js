@@ -6,9 +6,14 @@ const HomeView = {
     const container = document.getElementById('app');
     container.innerHTML = `
       <section class="container pb-5">
-        <div class="input-group mb-4 w-50 ms-auto">
-          <input type="text" id="searchInput" class="form-control shadow-sm p-2 mt-5 mb-3" placeholder="🔍 Cari Cerita..." aria-label="Cari cerita">
+        <div class="row mb-4 mt-5">
+          <div class="col-md-12">
+            <div class="input-group">
+              <input type="text" id="searchInput" class="form-control shadow-sm p-2" placeholder="🔍 Cari Cerita..." aria-label="Cari cerita">
+            </div>
+          </div>
         </div>
+        
         <div id="storiesContainer" class="row g-4">
           ${stories.length === 0 ? this.noStoriesMessage() : ''}
         </div>
@@ -16,6 +21,9 @@ const HomeView = {
     `;
 
     this.renderStories(stories);
+    
+    // Langsung inisialisasi tombol setelah render - tanpa setTimeout
+    this.initNotificationButtons();
   },
 
   noStoriesMessage() {
@@ -53,7 +61,15 @@ const HomeView = {
           <p class="card-text text-muted mb-2">${story.description.slice(0, 100)}...</p>
           <p class="text-secondary small">📍 ${story.lat ?? '-'}, ${story.lon ?? '-'}</p>
           ${story.lat && story.lon ? `<div id="${mapId}" class="mt-2 rounded shadow-sm" style="height: 200px;"></div>` : ''}
-          <a href="#/detail?id=${story.id}" class="btn btn-outline-success mt-5 w-50 fw-bold ms-auto">Lihat Detail</a>
+          <div class="mt-auto pt-3">
+            <div class="d-flex flex-column gap-2">
+              <a href="#/detail?id=${story.id}" class="btn btn-outline-success fw-bold">Lihat Detail</a>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm subscribeBtn" data-story-id="${story.id}">🔔 Subscribe</button>
+                <button class="btn btn-outline-secondary btn-sm unsubscribeBtn" data-story-id="${story.id}">🚫 Unsubscribe</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -96,7 +112,6 @@ const HomeView = {
     const container = document.getElementById('app');
     container.innerHTML = '';
   },
-
 
   showError(message) {
     const container = document.getElementById('app');
@@ -153,6 +168,104 @@ const HomeView = {
     const model = storyApi;
     new HomePresenter(this, model);
   },
+  
+  initNotificationButtons() {
+    console.log('🔧 Inisialisasi tombol notifikasi...');
+    
+    // Gunakan class selector karena sekarang ada multiple tombol
+    const subscribeButtons = document.querySelectorAll('.subscribeBtn');
+    const unsubscribeButtons = document.querySelectorAll('.unsubscribeBtn');
+
+    console.log('🔍 Subscribe buttons found:', subscribeButtons.length);
+    console.log('🔍 Unsubscribe buttons found:', unsubscribeButtons.length);
+
+    if (subscribeButtons.length === 0 || unsubscribeButtons.length === 0) {
+      console.error('❌ Tombol subscribe/unsubscribe tidak ditemukan di DOM!');
+      return;
+    }
+
+    console.log('✅ Tombol notifikasi berhasil ditemukan');
+
+    // ✅ Event listeners untuk semua tombol Subscribe
+    subscribeButtons.forEach((subscribeBtn) => {
+      subscribeBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const storyId = subscribeBtn.getAttribute('data-story-id');
+        console.log('🔔 Subscribe button clicked for story:', storyId);
+        
+        try {
+          // Cek apakah browser mendukung service worker dan push notification
+          if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            this.showMessage('Browser tidak mendukung push notification.', 'warning');
+            return;
+          }
+
+          // Request permission untuk notifikasi
+          const permission = await Notification.requestPermission();
+          if (permission !== 'granted') {
+            this.showMessage('Permission untuk notifikasi ditolak.', 'danger');
+            return;
+          }
+
+          // Import fungsi dari main.js
+          const { subscribeUserForPush } = await import('../main.js');
+          await subscribeUserForPush();
+          
+          this.showMessage(`Berhasil subscribe notifikasi untuk cerita: ${storyId}!`, 'success');
+          
+          // Disable tombol subscribe dan enable tombol unsubscribe
+          subscribeBtn.disabled = true;
+          subscribeBtn.textContent = '✅ Subscribed';
+          
+        } catch (err) {
+          console.error('Gagal subscribe:', err);
+          this.showMessage('Gagal subscribe notifikasi: ' + err.message, 'danger');
+        }
+      });
+    });
+
+    // ✅ Event listeners untuk semua tombol Unsubscribe
+    unsubscribeButtons.forEach((unsubscribeBtn) => {
+      unsubscribeBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const storyId = unsubscribeBtn.getAttribute('data-story-id');
+        console.log('🚫 Unsubscribe button clicked for story:', storyId);
+        
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            if (subscription) {
+              const success = await subscription.unsubscribe();
+              if (success) {
+                this.showMessage(`Berhasil unsubscribe notifikasi untuk cerita: ${storyId}.`, 'warning');
+                console.log('Berhasil unsubscribe dari PushManager');
+                
+                // Re-enable tombol subscribe
+                const correspondingSubscribeBtn = document.querySelector(`.subscribeBtn[data-story-id="${storyId}"]`);
+                if (correspondingSubscribeBtn) {
+                  correspondingSubscribeBtn.disabled = false;
+                  correspondingSubscribeBtn.textContent = '🔔 Subscribe';
+                }
+                
+              } else {
+                this.showMessage('Gagal unsubscribe notifikasi.', 'danger');
+              }
+            } else {
+              this.showMessage('Kamu belum berlangganan notifikasi.', 'info');
+            }
+          } catch (err) {
+            console.error('Unsubscribe error:', err);
+            this.showMessage('Terjadi kesalahan saat unsubscribe.', 'danger');
+          }
+        } else {
+          this.showMessage('Browser tidak mendukung service worker.', 'warning');
+        }
+      });
+    });
+
+    console.log('✅ Event listeners berhasil dipasang pada semua tombol notifikasi');
+  }
 };
 
 export default HomeView;

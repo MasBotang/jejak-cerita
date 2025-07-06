@@ -17,7 +17,7 @@ const authModel = {
     }
 
     sessionStorage.setItem(TOKEN_KEY, data.loginResult.token); 
-    return data.loginResult.token; 
+    return data.loginResult
   },
 
   async register(name, email, password) {
